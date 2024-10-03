@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "model/Model.h"
+
 namespace Render
 {
 

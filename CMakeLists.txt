@@ -10,7 +10,7 @@ find_package(OpenGL REQUIRED) # Graphics Library
 find_package(GLEW REQUIRED) # Automatically manages OpenGL extensions
 find_package(glm CONFIG REQUIRED) # Math library for OpenGL
 find_package(SDL2 CONFIG REQUIRED) # Provides OpenGL context, and input event handling
-find_package(assimp REQUIRED) # Asset importing library
+find_package(assimp CONFIG REQUIRED) # Asset importing library
 
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
