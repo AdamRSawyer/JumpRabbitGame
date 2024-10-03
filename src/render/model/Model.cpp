@@ -24,9 +24,8 @@ namespace Render
         glBindVertexArray(vaoId);
         glGenBuffers((int)(BufferType::BUFFER_NUM) * sizeof(bufferIds[0]), bufferIds); // Generate the Ids for the vertex, uv, index, and normal buffer
 
-        Assimp::Importer importer;
         
-        const aiScene *modelScenePtr = importer.ReadFile(modelPath, ASSIMP_LOAD_FLAGS);
+        const aiScene *modelScenePtr = aiImportFile(modelPath, ASSIMP_LOAD_FLAGS);
 
         if (modelScenePtr != nullptr)
         {
@@ -134,7 +133,7 @@ namespace Render
         }
         else
         {
-            printf("Error occurred while loading %s:\n\t%s", modelPath, importer.GetErrorString());
+            printf("Error occurred while loading %s:\n\t%s", modelPath, aiGetErrorString());
             return -1;
         }
         return 0;
