@@ -9,7 +9,8 @@
 
 #include <GL/glew.h>
 
-#include "cubeTexture.h"
+//#include "cubeTexture.h"
+#include "chungusTexture.h"
 
 namespace Render
 {
@@ -243,7 +244,11 @@ static const std::vector<glm::vec2> cubeUVs
 
                 glm::vec2(0.625f, 0.5f),
                 glm::vec2(0.625f, 0.75f),
-                glm::vec2(0.375f, 0.75f)
+                glm::vec2(0.375f, 0.75f),
+
+                glm::vec2(0.625f, 0.25f),
+                glm::vec2(0.625f, 0.5f),
+                glm::vec2(0.375f, 0.5f)
 
             // 1.    glm::vec2(0.875f, 0.5f),
             // 2.    glm::vec2(0.625f, 0.75f),

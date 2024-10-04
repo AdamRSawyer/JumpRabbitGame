@@ -186,6 +186,7 @@ namespace Render
 
         glBindBuffer(GL_ARRAY_BUFFER, bufferIds[(int)BufferType::UV_BUFF]);
         glBufferData(GL_ARRAY_BUFFER, gl_uv_buffer.size() * sizeof(gl_uv_buffer[0]), &gl_uv_buffer[0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray((GLuint)SHADER_LOCATIONS::UV);
         #define UV_SIZE 2
         glVertexAttribPointer(
             (GLuint)SHADER_LOCATIONS::UV,     // Which Vertex Attrib
@@ -198,6 +199,7 @@ namespace Render
 
         glBindBuffer(GL_ARRAY_BUFFER, bufferIds[(int)BufferType::NORMAL_BUFF]);
         glBufferData(GL_ARRAY_BUFFER, gl_norm_buffer.size() * sizeof(gl_norm_buffer[0]), &gl_norm_buffer[0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray((GLuint)SHADER_LOCATIONS::NORM);
         #define NORM_SIZE 3
         glVertexAttribPointer(
             (GLuint)SHADER_LOCATIONS::NORM,   // Which Vertex Attrib
