@@ -4,7 +4,7 @@
 #define WINDOWS
 
 #include <cstdio>
-#include <cstdint>
+#include <stdint.h>
 #include <vector>
 
 #ifdef WINDOWS

@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "model/Model.h"
+
 namespace Render
 {
 
@@ -21,12 +23,6 @@ static const glm::vec3 DEFAULT_INIT_POS = glm::vec3(4.0f, 4.0f, 4.0f);
 static const float DEFAULT_INIT_HORIZNTL_ANGL_RAD = glm::radians(0.0f);
 static const float DEFAULT_INIT_VERT_ANGL_RAD = glm::radians(0.0f);
 
-enum class MODEL_ID : int32_t
-{
-    CUBE = 0,
-
-};
-
 enum class SHADER_ID : int32_t
 {
     SIMPLE_VERTEX_AND_FRAGMENT_SHADER = 0,
@@ -36,15 +32,22 @@ static std::string SHADER_PATH = "./src/shaders/";
 static std::string SHADER_CONFIG_FILE = "shaderConfig.ini";
 
 // Describes the strings associated with each enum entry for use with config file
-const std::map<std::string, SHADER_ID> STRING_TO_SHADER_MAP = 
+static const std::map<std::string, SHADER_ID> STRING_TO_SHADER_MAP = 
 {
     {"SIMPLE_VERTEX_AND_FRAGMENT_SHADER", SHADER_ID::SIMPLE_VERTEX_AND_FRAGMENT_SHADER},
+};
+
+static const std::map<std::string, MODEL_ID> STRING_TO_MODEL_MAP = 
+{
+    // The CUBE Model Id is not defined because it can only be fetched internally
+    {"MAN", MODEL_ID::MAN},
 };
 
 struct ShaderInfo
 {
     GLuint programId;
     GLuint mvpId;
+    GLuint diffuseTextureUniformId;
 };
 
 struct DrawQueueElmnt
@@ -72,45 +75,6 @@ struct DrawQueueElmnt
 };
 
 bool operator>(const DrawQueueElmnt& queueElmnt_1, const DrawQueueElmnt& queueElmnt_2);
-
-const std::vector<glm::vec3> cubeVerts = {    
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f)
-};
 
 }
 #endif // RENDERER_DEFS_H

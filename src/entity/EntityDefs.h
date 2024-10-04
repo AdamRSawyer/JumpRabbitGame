@@ -1,7 +1,7 @@
 #ifndef ENTITY_DEFS_H
 #define ENTITY_DEFS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace gameEntities
 {

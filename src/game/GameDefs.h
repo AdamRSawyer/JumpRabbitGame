@@ -1,7 +1,7 @@
 #ifndef GAME_DEFS_H
 #define GAME_DEFS_H
 
-#include <cstdint>
+#include <stdint.h>
 #include <vector>
 
 enum class GameEvent : int32_t 
