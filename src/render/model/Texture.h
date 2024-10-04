@@ -16,7 +16,7 @@ namespace Render
         public:
 
         Texture(const char *texturePath, GLenum textureTarg = GL_TEXTURE_2D);
-        Texture(unsigned char *textureBuff, uint32_t dataSize, GLenum textureTarg = GL_TEXTURE_2D);
+        Texture(const unsigned char *textureBuff, uint32_t dataSize, GLenum textureTarg = GL_TEXTURE_2D);
         int load(unsigned char* textureData);
         int bind(GLenum textureUnit);
         

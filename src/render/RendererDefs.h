@@ -47,6 +47,7 @@ struct ShaderInfo
 {
     GLuint programId;
     GLuint mvpId;
+    GLuint diffuseTextureUniformId;
 };
 
 struct DrawQueueElmnt
@@ -74,45 +75,6 @@ struct DrawQueueElmnt
 };
 
 bool operator>(const DrawQueueElmnt& queueElmnt_1, const DrawQueueElmnt& queueElmnt_2);
-
-const std::vector<glm::vec3> cubeVerts = {    
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f,-1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f,-1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f,-1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f, 1.0f),
-                glm::vec3(1.0f,-1.0f, 1.0f)
-};
 
 }
 #endif // RENDERER_DEFS_H

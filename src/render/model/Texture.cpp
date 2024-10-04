@@ -27,7 +27,7 @@ namespace Render
         }
     }
 
-    Texture::Texture(unsigned char *textureBuff, uint32_t dataSize, GLenum textureTarg)
+    Texture::Texture(const unsigned char *textureBuff, uint32_t dataSize, GLenum textureTarg)
     {
         textureTarget = textureTarg;
 
@@ -88,6 +88,7 @@ namespace Render
             glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_REPEAT); // How we handle values that go over the edge of the texture for coordinate t
 
             glGenerateTextureMipmap(textureId);
+
             
             return 0;
         }

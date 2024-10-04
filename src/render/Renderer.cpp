@@ -10,7 +10,9 @@ namespace Render
 
     Renderer::Renderer()
     {
-        loadedModelVerts[MODEL_ID::CUBE] = cubeVerts;
+        loadedModels[MODEL_ID::CUBE] = std::unique_ptr<Model>(new Model(Render::cubeIndices, Render::cubeVerts, 
+                                                                        Render::cubeUVs, Render::cubeNorms, 
+                                                                        Texture((unsigned char *)cubeTexturePng, sizeof(cubeTexturePng), GL_TEXTURE_2D)));
 
         // Set default projection and view matrices
         projection = glm::perspective(DEFAULT_CAMERA_FOV_RAD, DEFAULT_ASPECT_RATIO, DEFAULT_RENDER_MIN_DIST, DEFAULT_RENDER_MAX_DIST);
@@ -37,14 +39,9 @@ namespace Render
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-
-        glGenVertexArrays(1, &vertArrayId);
-        glBindVertexArray(vertArrayId);
-
+        
         // Dark blue background
 	    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-
-        glGenBuffers(1, &vertBuffer);
         
         // Load shader config file
         loadShaderConfig();
@@ -64,25 +61,26 @@ namespace Render
         return 0;  
     }
 
-    // Returns the number of verticies in the model
-    int Renderer::getModelVerts(const MODEL_ID& modelId) // Populates vertex buffer with given models verticies
+    // Checks to see if the given model is loaded, draws it if it is, loads then draws it if not, and if it fails to load it draws the default cube model
+    int Renderer::renderModel(const MODEL_ID& modelId) 
     {
-        glBindBuffer(GL_ARRAY_BUFFER, vertBuffer);
 
-        if (loadedModelVerts.count(modelId))
+        if (loadedModels.count(modelId))
         {
-            glBufferData(GL_ARRAY_BUFFER, loadedModelVerts[modelId].size() * sizeof(glm::vec3), &loadedModelVerts[modelId][0], GL_STATIC_DRAW);
-            return loadedModelVerts[modelId].size();
+            loadedModels[modelId]->render();
+            return 0;
         }
-        else if (loadModel(modelId) == 0)
+        else if (loadModel(modelId))
         {
-            glBufferData(GL_ARRAY_BUFFER, loadedModelVerts[modelId].size() * sizeof(glm::vec3), &loadedModelVerts[modelId][0], GL_STATIC_DRAW);
-            return loadedModelVerts[modelId].size();
+            // Needs implemented: Load model if not loaded
+            loadedModels[modelId]->render();
+            return 0;
         }
-        else // Return default CUBE model
+        else // Render default cube model
         {
-            glBufferData(GL_ARRAY_BUFFER, loadedModelVerts[MODEL_ID::CUBE].size() * sizeof(glm::vec3), &loadedModelVerts[MODEL_ID::CUBE][0], GL_STATIC_DRAW);
-            return loadedModelVerts[MODEL_ID::CUBE].size();
+            loadedModels[MODEL_ID::CUBE]->render();
+            printf("Failed to load MODEL_ID %i", modelId);
+            return -1;
         }
     }
 
@@ -209,6 +207,8 @@ namespace Render
 
         // Attach MVP uniform to program
         shaderMap[shaderId].mvpId = glGetUniformLocation(shaderMap[shaderId].programId, "MVP");
+        shaderMap[shaderId].diffuseTextureUniformId = glGetUniformLocation(shaderMap[shaderId].programId, "diffuseTexture");
+        glUniform1i(shaderMap[shaderId].diffuseTextureUniformId, GL_TEXTURE0);
 
         return 0;
     }
@@ -220,32 +220,15 @@ namespace Render
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             while (!drawQueue.empty())
             {
-                int vertsToDraw = getModelVerts(drawQueue.top().modelId);
                 getShader(drawQueue.top().shaderId);
-
 
                 // Generate MVP
                 glm::mat4 mvp = projection * view * drawQueue.top().modelMatrix;
                 // Send MVP matrix to shader
                 glUniformMatrix4fv(shaderMap[drawQueue.top().shaderId].mvpId, 1, GL_FALSE, &mvp[0][0]);
-
-                // Enable and bind vertex buffer
-                glEnableVertexAttribArray(0); // This is a magic number. Lets make it a const somewhere
-                glBindBuffer(GL_ARRAY_BUFFER, vertBuffer);
-                glVertexAttribPointer(
-                    0,
-                    3,
-                    GL_FLOAT,
-                    GL_FALSE,
-                    0,
-                    (void*)0
-                );
-
-                glDrawArrays(GL_TRIANGLES, 0, vertsToDraw);
-                glDisableVertexAttribArray(0);
+                renderModel(drawQueue.top().modelId);
 
                 drawQueue.pop();
-
             }
             // Swap Buffers
             SDL_GL_SwapWindow(window);

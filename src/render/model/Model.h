@@ -18,11 +18,20 @@ namespace Render
 class Model
 {
     public:
+    
     Model(const char* modelPath);
+    Model(const std::vector<GLuint> &indexBuffer, 
+          const std::vector<glm::vec3> &vertBuffer,
+          const std::vector<glm::vec2> &uvBuffer,
+          const std::vector<glm::vec3> &normBuffer,
+          const Texture &texture);
+
     int loadModel(const char* modelPath);
+    int render();
 
     protected:
     int populateOglBuffers();
+    int initVertIndiceMesh(const aiScene *modelScenePtr, uint64_t &vertCnt, uint64_t &indiceCnt);
 
     // The ID used to get the buffer to the model data in VRAM
     GLuint vaoId;
