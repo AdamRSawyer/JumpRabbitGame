@@ -3,7 +3,10 @@
 Game::Game(int frameRate) : frameRate(frameRate)
 {
     // Initialize game with test entity
-    entities.push_back(new gameEntities::StaticObj(Render::MODEL_ID::CUBE, Render::SHADER_ID::SIMPLE_VERTEX_AND_FRAGMENT_SHADER));
+    //entities.push_back(new gameEntities::StaticObj(Render::MODEL_ID::CUBE, Render::SHADER_ID::SIMPLE_VERTEX_AND_FRAGMENT_SHADER));
+    entities.push_back(new gameEntities::StaticObj(Render::MODEL_ID::MAN, Render::SHADER_ID::SIMPLE_VERTEX_AND_FRAGMENT_SHADER));
+    entities.back()->offsetPosition(glm::vec3(5.0f, -5.0f, 5.0f));
+    entities.back()->offsetScale(glm::vec3(0.75f, 0.75f, 0.75f));
 
     renderer = Render::Renderer::getRenderer();
 
@@ -41,7 +44,7 @@ int Game::loop(const std::vector<GameEvent>& gameEvents)
         // Append all renderable entities to the draw queue
         for (auto entPtr : renderableEntities)
         {
-            entPtr->offsetRotation(glm::vec3(glm::radians(0.1f), glm::radians(0.2f), 0.0f));
+            entPtr->offsetRotation(glm::vec3(glm::radians(0.0f), glm::radians(0.2f), 0.0f));
             entPtr->render();
             
         }

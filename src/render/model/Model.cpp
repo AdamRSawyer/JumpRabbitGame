@@ -9,7 +9,8 @@ namespace Render
         // Create Model's vao
         glGenVertexArrays(1, &vaoId);
         
-        if (!loadModel(modelPath))
+        modelInit = loadModel(modelPath) == 0;
+        if (!modelInit)
         {
             printf("Failed to load model: %s", modelPath);
         }
@@ -45,6 +46,8 @@ namespace Render
         gl_vert_buffer.clear();
         gl_uv_buffer.clear();
         gl_norm_buffer.clear();
+
+        modelInit = true;
 
         glBindVertexArray(BLANK_VAO_ID);
     }
@@ -260,4 +263,10 @@ namespace Render
         return 0;
     }
 
+    bool Model::getModelInit()
+    {
+        return modelInit;
+    }
+
 }
+

@@ -15,6 +15,12 @@
 namespace Render
 {
 
+enum class MODEL_ID : int32_t
+{
+    CUBE = 0,
+    MAN,
+
+};
 
 enum class SHADER_LOCATIONS : GLuint
 {
@@ -23,9 +29,12 @@ enum class SHADER_LOCATIONS : GLuint
     NORM   = 2
 };
 
+static const std::string MODEL_FOLDER_PATH = "./resources/models/";
+static const std::string MODEL_CONFIG_FILE = "modelConfig.ini";
+
 static const uint32_t INVALID_TEXTURE   = 0xFFFF;
 static const GLuint   BLANK_VAO_ID      =      0;
-static const auto     ASSIMP_LOAD_FLAGS = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices;
+static const auto     ASSIMP_LOAD_FLAGS = aiProcess_FlipUVs | aiProcess_FixInfacingNormals | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices;
 
 enum class BufferType : GLuint // Makes our attribute array numbering consistent and readable
 {

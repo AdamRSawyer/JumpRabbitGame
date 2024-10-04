@@ -29,9 +29,13 @@ class Model
     int loadModel(const char* modelPath);
     int render();
 
+    bool getModelInit();
+
     protected:
     int populateOglBuffers();
     int initVertIndiceMesh(const aiScene *modelScenePtr, uint64_t &vertCnt, uint64_t &indiceCnt);
+
+    bool modelInit; // Lets you know if the model successfully loaded
 
     // The ID used to get the buffer to the model data in VRAM
     GLuint vaoId;

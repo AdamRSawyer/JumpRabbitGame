@@ -18,7 +18,7 @@ namespace Render
         }
         else
         {
-            if (load(textureData))
+            if (load(textureData) == 0)
             {
                 textureInit = true;
             }

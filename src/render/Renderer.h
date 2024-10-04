@@ -59,10 +59,13 @@ class Renderer // Singleton Class that handles rendering of all game objects
     int loadShader(const SHADER_ID& shaderId);
     // Returns 0 if success and -1 if error occurred
     int loadShaderConfig();
+    // Returns 0 if success and -1 if error occurred
+    int loadModelConfig();
 
     std::map<MODEL_ID, std::unique_ptr<Model>> loadedModels;
     std::map<SHADER_ID, ShaderInfo> shaderMap;
     std::map<SHADER_ID, std::pair<std::string, std::string>> shaderFNameMap;
+    std::map<MODEL_ID, std::string> modelFNameMap;
     std::priority_queue<DrawQueueElmnt, std::vector<DrawQueueElmnt>, std::greater<DrawQueueElmnt>> drawQueue;
 
     // Camera Variables

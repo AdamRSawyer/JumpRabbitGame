@@ -50,6 +50,9 @@ namespace Render
         {
             printf("Failed to load default shader.\n");
         }
+
+        // Load model config file
+        loadModelConfig();
     }
 
     // modelMatrix: translation * rotation * scale * glm::mat4(1.0f)
@@ -70,7 +73,7 @@ namespace Render
             loadedModels[modelId]->render();
             return 0;
         }
-        else if (loadModel(modelId))
+        else if (loadModel(modelId) == 0)
         {
             // Needs implemented: Load model if not loaded
             loadedModels[modelId]->render();
@@ -102,6 +105,19 @@ namespace Render
 
     int Renderer::loadModel(const MODEL_ID& modelId)
     {
+        if (modelFNameMap.count(modelId))
+        {
+            loadedModels[modelId] = std::unique_ptr<Model>( new Model((MODEL_FOLDER_PATH + modelFNameMap[modelId]).c_str()));
+            if (loadedModels[modelId]->getModelInit())
+            {
+                return 0;
+            }
+            else
+            {
+                loadedModels[modelId].reset();
+                loadedModels.erase(modelId);
+            }
+        }
         return -1;
     }
 
@@ -287,6 +303,56 @@ namespace Render
                 
             }
             shaderConfig.close();
+        }
+        else
+        {
+            return -1;
+        }
+        return 0;
+    }
+
+    int Renderer::loadModelConfig()
+    {
+        std::ifstream modelConfig(MODEL_FOLDER_PATH + MODEL_CONFIG_FILE);
+
+        const uint8_t BUFF_SIZE = 255;
+        char buff[BUFF_SIZE];
+
+        if (modelConfig.is_open())
+        {
+            while(!modelConfig.eof())
+            {
+                modelConfig.getline(buff, BUFF_SIZE);
+                std::string line(buff);
+                std::string modelName = "", modelFName = "";
+
+                // For understanding the regex use https://regex101.com/
+                // C++ uses the ECMAScript flavor of regex
+                std::regex modelNameRgx(R"([\w]+(?=\s*=))");
+                std::regex modelFNameRgx(R"([\w./]+.\w*[^=]\s*[^=](?=\s*"))");
+
+                std::smatch searchMatch;
+
+                if(std::regex_search(line, searchMatch, modelNameRgx))
+                {
+                    modelName = searchMatch.str(0);
+                }
+                if(std::regex_search(line, searchMatch, modelFNameRgx))
+                {
+                    modelFName = searchMatch.str(0);
+                }
+
+                if (modelName.length() && modelFName.length())
+                {
+                    if (STRING_TO_MODEL_MAP.count(modelName))
+                    {
+                        modelFNameMap[STRING_TO_MODEL_MAP.at(modelName)] = modelFName;
+                    }
+                    
+                }
+                
+            }
+            modelConfig.close();
         }
         else
         {
