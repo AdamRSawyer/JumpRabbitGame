@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.8)
 
+set(CMAKE_BUILD_TYPE Release)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADDITIONAL_CFLAGS} -g -O0")
+set (CMAKE_CXX_FLAGS_RELEASE "")
 
 project(JumpRabbit)
 
-set(CMAKE_BUILD_TYPE Release)
 
 find_package(assimp CONFIG REQUIRED) # Asset importing library
 find_package(OpenGL REQUIRED) # Graphics Library

@@ -41,6 +41,16 @@ class Renderer // Singleton Class that handles rendering of all game objects
     // Render all of the models in the drawQueue
     int render();
 
+    // Camera Functions
+    int offsetCamaraPos(const glm::vec3 &posOffset);
+    int setCameraPos(const glm::vec3 &pos);
+    int offsetCameraRot(const glm::vec3 &rotOffsetVecXYZ_rad);
+    int setCameraRot(const glm::vec3 &rotationVecXYZ_rad);
+    
+    int setFov(const float &fov_rad);
+    int offsetFov(const float &fov_rad);
+
+
     private:
     Renderer();
     static Renderer* rendererInstance;
@@ -62,6 +72,8 @@ class Renderer // Singleton Class that handles rendering of all game objects
     // Returns 0 if success and -1 if error occurred
     int loadModelConfig();
 
+    int updateCameraMats();
+
     std::map<MODEL_ID, std::unique_ptr<Model>> loadedModels;
     std::map<SHADER_ID, ShaderInfo> shaderMap;
     std::map<SHADER_ID, std::pair<std::string, std::string>> shaderFNameMap;
@@ -71,6 +83,10 @@ class Renderer // Singleton Class that handles rendering of all game objects
     // Camera Variables
     glm::mat4 projection;
     glm::mat4 view;
+
+    glm::vec3 cameraPos;
+    glm::vec3 cameraRot;
+    float     cameraFOV;
 
     SDL_Window *window = nullptr;
 

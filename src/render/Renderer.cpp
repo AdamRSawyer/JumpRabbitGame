@@ -14,28 +14,14 @@ namespace Render
                                                                         Render::cubeUVs, Render::cubeNorms, 
                                                                         Texture((unsigned char *)cubeTexturePng, sizeof(cubeTexturePng), GL_TEXTURE_2D)));
 
-        // Set default projection and view matrices
-        projection = glm::perspective(DEFAULT_CAMERA_FOV_RAD, DEFAULT_ASPECT_RATIO, DEFAULT_RENDER_MIN_DIST, DEFAULT_RENDER_MAX_DIST);
-        glm::vec3 cameraLookDir(
-            glm::cos(DEFAULT_INIT_VERT_ANGL_RAD) * glm::sin(DEFAULT_INIT_HORIZNTL_ANGL_RAD),
-            glm::sin(DEFAULT_INIT_VERT_ANGL_RAD),
-            glm::cos(DEFAULT_INIT_VERT_ANGL_RAD) * glm::cos(DEFAULT_INIT_HORIZNTL_ANGL_RAD)
+        
+        // Set default camera variables
+        cameraPos = DEFAULT_INIT_POS;
+        cameraRot = glm::vec3(DEFAULT_INIT_VERT_ANGL_RAD, DEFAULT_INIT_HORIZNTL_ANGL_RAD, 0);
+        cameraFOV = DEFAULT_CAMERA_FOV_RAD;
 
-        );
-
-        glm::vec3 right(
-            glm::sin(DEFAULT_INIT_HORIZNTL_ANGL_RAD - glm::radians(45.0f)),
-            0,
-            glm::cos(DEFAULT_INIT_HORIZNTL_ANGL_RAD - glm::radians(45.0f))
-        );
-
-        glm::vec3 upVec = glm::cross(right, cameraLookDir);
-
-        view = glm::lookAt(
-            DEFAULT_INIT_POS,
-            DEFAULT_INIT_POS + cameraLookDir,
-            upVec
-        );
+        updateCameraMats();
+        
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
@@ -364,5 +350,74 @@ namespace Render
     void Renderer::setSDLWindow(SDL_Window *windowPtr)
     {
         window = windowPtr;
+    }
+
+    int Renderer::updateCameraMats()
+    {
+        // Set default projection and view matrices
+        projection = glm::perspective(cameraFOV, DEFAULT_ASPECT_RATIO, DEFAULT_RENDER_MIN_DIST, DEFAULT_RENDER_MAX_DIST);
+        glm::vec3 cameraLookDir(
+            glm::cos(cameraRot.x) * glm::sin(cameraRot.y),
+            glm::sin(cameraRot.x),
+            glm::cos(cameraRot.x) * glm::cos(cameraRot.y)
+        );
+
+        glm::vec3 right(
+            glm::sin(cameraRot.y - glm::radians(90.0f)),
+            0,
+            glm::cos(cameraRot.y - glm::radians(90.0f))
+        );
+
+        glm::vec3 upVec = glm::cross(right, cameraLookDir);
+
+        view = glm::lookAt(
+            cameraPos,
+            cameraPos + cameraLookDir,
+            upVec
+        );
+
+        return 0;
+    }
+
+    int Renderer::offsetCamaraPos(const glm::vec3 &posOffset)
+    {
+        cameraPos += posOffset;
+        updateCameraMats();
+        return 0;
+    }
+
+    int Renderer::setCameraPos(const glm::vec3 &pos)
+    {
+        cameraPos = pos;
+        updateCameraMats();
+        return 0;
+    }
+
+    int Renderer::offsetCameraRot(const glm::vec3 &rotOffsetVecXYZ_rad)
+    {
+        cameraRot += rotOffsetVecXYZ_rad;
+        updateCameraMats();
+        return 0;
+    }
+
+    int Renderer::setCameraRot(const glm::vec3 &rotationVecXYZ_rad)
+    {
+        cameraRot = rotationVecXYZ_rad;
+        updateCameraMats();
+        return 0;
+    }
+
+    int Renderer::setFov(const float &fov_rad)
+    {
+        cameraFOV = fov_rad;
+        updateCameraMats();
+        return 0;
+    }
+
+    int Renderer::offsetFov(const float &fov_rad)
+    {
+        cameraFOV += fov_rad;
+        updateCameraMats();
+        return 0;
     }
 }

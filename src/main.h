@@ -20,8 +20,10 @@
 #include "game/GameDefs.h"
 #include "game/Game.h"
 
+#include "input/SdlInputManagement.h"
+
 const GameEvent sdlEvent_to_gameEvent(const SDL_Event &sdlEvent);
-const GameEvent sdlKeyboardEventMap(const SDL_Event &sdlEvent);
+void sdlKeyboardScancodeToEventMap(std::vector<GameEvent> &gameEvents, Input::SdlInputManagement &inputMngr);
 void grabEvents(std::vector<GameEvent> &gameEvents);
 int close_game(const int& returnStatus);
 
@@ -32,49 +34,81 @@ int close_game(const int& returnStatus)
     return returnStatus;
 }
 
+
+
 // Clears any previously logged events and populates vector iwth new ones
-void grabEvents(std::vector<GameEvent> &gameEvents) // Take SDL_Events and transform them into GameEvents
+void grabEvents(std::vector<GameEvent> &gameEvents, Input::SdlInputManagement &inputMngr) // Take SDL_Events and transform them into GameEvents
 {
-
     gameEvents.clear();
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        GameEvent gameEvent = sdlEvent_to_gameEvent(event);
-        if (gameEvent != GameEvent::NO_EVENT)
-        {
-            gameEvents.push_back(gameEvent);
-        }
-    }
-}
-
-const GameEvent sdlEvent_to_gameEvent(const SDL_Event &sdlEvent)
-{
-    switch (sdlEvent.type)
-    {
-    case SDL_KEYDOWN:
-    case SDL_KEYUP:
-        return sdlKeyboardEventMap(sdlEvent);
-        break;
+    inputMngr.updateInputState();
+    sdlKeyboardScancodeToEventMap(gameEvents, inputMngr);
     
-    default:
-        return GameEvent::NO_EVENT;
-        break;
-    }
 }
 
-const GameEvent sdlKeyboardEventMap(const SDL_Event &sdlEvent)
+void sdlKeyboardScancodeToEventMap(std::vector<GameEvent> &gameEvents, Input::SdlInputManagement &inputMngr)
 {
-    switch (sdlEvent.key.keysym.sym)
+    if (inputMngr.getKeyPressed(SDL_Scancode::SDL_SCANCODE_ESCAPE))
     {
-    case SDLK_ESCAPE:
-        return GameEvent::GAME_EXIT;
-        break;
-    default:
-        return GameEvent::NO_EVENT;
-        break;
+        gameEvents.push_back(GameEvent(GameEventType::GAME_EXIT));
     }
+
+    // Movement
+    //======================================================//
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_W))
+    {
+        gameEvents.push_back(GameEvent(GameEventType::MOVE_FORWARD));
+    }
+
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_S))
+    {
+        gameEvents.push_back(GameEvent(GameEventType::MOVE_BACKWARD));
+    }
+
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_A))
+    {
+        gameEvents.push_back(GameEvent(GameEventType::MOVE_LEFT));
+    }
+
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_D))
+    {
+        gameEvents.push_back(GameEvent(GameEventType::MOVE_RIGHT));
+    }
+
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_LCTRL))
+    {
+        gameEvents.push_back(GameEvent(GameEventType::MOVE_DOWN));
+    }
+
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_SPACE))
+    {
+        gameEvents.push_back(GameEvent(GameEventType::MOVE_UP));
+    }
+
+    const Input::MouseState *mouseState = inputMngr.getMouseUdpated();
+    if (mouseState != nullptr)
+    {
+        if (mouseState->mousePositionChange)
+        {
+            gameEvents.push_back(GameEvent(GameEventType::LOOK_ADJUSTMENT, mouseState->cursor_x, mouseState->cursor_y));
+        }
+        if (mouseState->scrollWheelChange)
+        {
+            GameEvent scrllWhlEvent(GameEventType::FOV_ADJUSTMENT);
+            scrllWhlEvent.fovAdjustmnet = mouseState->scrllWheel_y;
+            gameEvents.push_back(scrllWhlEvent);
+        }
+        
+    }
+    //======================================================//
+
+    // Mode Toggling
+    //======================================================//
+    if (inputMngr.getKeyHeld(SDL_Scancode::SDL_SCANCODE_GRAVE)) // This is the TILDE scancode
+    {
+        gameEvents.push_back(GameEvent(GameEventType::TOGGLE_DEBUG_MODE));
+    }
+
+
 }
 
 

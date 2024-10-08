@@ -41,12 +41,15 @@ int main()
     Render::Renderer* renderer = Render::Renderer::getRenderer();
     renderer->setSDLWindow(window);
 
+    Input::SdlInputManagement inputManager;
+    SDL_SetRelativeMouseMode(SDL_bool::SDL_TRUE);
+
     bool gameRunning = true;
     Game game(FRAME_RATE);
 
     while (gameRunning)
     {
-        grabEvents(eventQueue);
+        grabEvents(eventQueue, inputManager);
         if (game.loop(eventQueue) == -1)
         {
             gameRunning = false;

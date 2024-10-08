@@ -36,6 +36,10 @@ class Game
         int frameRate;
         std::chrono::milliseconds msRenderDelta;
         std::chrono::steady_clock::time_point lastRenderTime;
+
+        void debugCameraMove(const GameEvent &event);
+
+        bool debugMode;
 };
 
 #endif // GAME_H

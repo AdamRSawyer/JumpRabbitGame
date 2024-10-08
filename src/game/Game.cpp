@@ -14,44 +14,67 @@ Game::Game(int frameRate) : frameRate(frameRate)
 
     lastRenderTime = std::chrono::steady_clock::now();
 
+    debugMode = false;
+
 }
 
 int Game::loop(const std::vector<GameEvent>& gameEvents)
 {
     std::chrono::steady_clock::time_point curTime = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point timeOfRender = max(curTime, lastRenderTime + msRenderDelta);
 
     int returnValue = 0;
     for (auto event: gameEvents)
     {
-        switch (event)
+        switch (event.eventType)
         {
-        case GameEvent::GAME_EXIT:
+        case GameEventType::GAME_EXIT:
             returnValue = -1;
             break;
-        
+
+        case GameEventType::TOGGLE_DEBUG_MODE:
+            debugMode = !debugMode;
+            break;
+
+        case GameEventType::MOVE_FORWARD:
+        case GameEventType::MOVE_BACKWARD:
+        case GameEventType::MOVE_LEFT:
+        case GameEventType::MOVE_RIGHT:
+        case GameEventType::MOVE_UP:
+        case GameEventType::MOVE_DOWN:
+        case GameEventType::LOOK_ADJUSTMENT:
+        case GameEventType::FOV_ADJUSTMENT:
+            if (debugMode)
+            {
+                debugCameraMove(event);  
+            }
+            break;
+
         default:
             break;
         }
 
     }
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastRenderTime) > msRenderDelta)
+    // Find all renderable game entities and call their render method
+    std::vector<gameEntities::Entity *> renderableEntities;
+    findEntities(gameEntities::EntityAttributes::CAN_RENDER, renderableEntities);
+    // Append all renderable entities to the draw queue
+    for (auto entPtr : renderableEntities)
     {
-        lastRenderTime = curTime;
-        // Find all renderable game entities and call their render method
-        std::vector<gameEntities::Entity *> renderableEntities;
-        findEntities(gameEntities::EntityAttributes::CAN_RENDER, renderableEntities);
-        // Append all renderable entities to the draw queue
-        for (auto entPtr : renderableEntities)
-        {
-            entPtr->offsetRotation(glm::vec3(glm::radians(0.0f), glm::radians(0.2f), 0.0f));
-            entPtr->render();
-            
-        }
-
-        // Tell the renderer to draw all of the entities in the queue
-        renderer->render();
+        entPtr->offsetRotation(glm::vec3(glm::radians(0.0f), glm::radians(0.2f), 0.0f));
+        entPtr->render();
     }
+
+    renderer->render();
+
+    // Tell the renderer to draw all of the entities in the queue       
+    while (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastRenderTime) < msRenderDelta)
+    {
+        curTime = std::chrono::steady_clock::now();
+    }
+
+    lastRenderTime = curTime;
 
     return returnValue;
 }
@@ -71,4 +94,39 @@ int Game::setFrameRate(const int frame_rate)
 {
     frameRate = frame_rate;
     return 0;
+}
+
+void Game::debugCameraMove(const GameEvent &event)
+{
+    const float DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND = 10.0f / frameRate;
+    const float DEBUG_CAMERA_ROTATION_MULTIPLIER = 0.1f;
+    const float DEBUG_CAMERA_FOV_MULTIPLIER = 1.0f;
+
+    switch (event.eventType)
+    {
+    case GameEventType::MOVE_FORWARD:
+        renderer->offsetCamaraPos(glm::vec3(0.0f, 0.0f, DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND));
+        break;
+    case GameEventType::MOVE_BACKWARD:
+        renderer->offsetCamaraPos(glm::vec3(0.0f, 0.0f, -DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND));
+        break;
+    case GameEventType::MOVE_RIGHT:
+        renderer->offsetCamaraPos(glm::vec3(-DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f, 0.0f));
+        break;
+    case GameEventType::MOVE_LEFT:
+        renderer->offsetCamaraPos(glm::vec3(DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f, 0.0f));
+        break;
+    case GameEventType::MOVE_UP:
+        renderer->offsetCamaraPos(glm::vec3(0.0f, DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f));
+        break;
+    case GameEventType::MOVE_DOWN:
+        renderer->offsetCamaraPos(glm::vec3(0.0f, -DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f));
+        break;
+    case GameEventType::LOOK_ADJUSTMENT:
+        renderer->offsetCameraRot(glm::vec3(glm::radians(-event.lookAdjustmentY * DEBUG_CAMERA_ROTATION_MULTIPLIER), glm::radians(-event.lookAdjustmentX * DEBUG_CAMERA_ROTATION_MULTIPLIER), 0.0f));
+    case GameEventType::FOV_ADJUSTMENT:
+        renderer->offsetFov(glm::radians(-event.fovAdjustmnet * DEBUG_CAMERA_FOV_MULTIPLIER));
+    default:
+        break;
+    }
 }
