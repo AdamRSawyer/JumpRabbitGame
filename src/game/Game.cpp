@@ -10,6 +10,17 @@ Game::Game(int frameRate) : frameRate(frameRate)
 
     renderer = Render::Renderer::getRenderer();
 
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    Render::CameraMoveElmnt camMove(glm::vec3(4.0f, 30.0f, 4.0f), glm::vec3(glm::radians(-45.0f), glm::radians(0.0f), 0.0f), glm::radians(90.0f), deadline);
+    renderer->addCameraMove(camMove);
+    camMove = Render::CameraMoveElmnt(Render::DEFAULT_INIT_POS, glm::vec3(Render::DEFAULT_INIT_VERT_ANGL_RAD, Render::DEFAULT_INIT_HORIZNTL_ANGL_RAD, 0.0f), glm::radians(90.0f), deadline + std::chrono::seconds(10));
+    renderer->addCameraMove(camMove);
+    camMove = Render::CameraMoveElmnt(glm::vec3(16.0f, 4.0f, 4.0f), glm::vec3(Render::DEFAULT_INIT_VERT_ANGL_RAD, glm::radians(-90.0f), 0.0f), glm::radians(90.0f), deadline + std::chrono::seconds(15));
+    renderer->addCameraMove(camMove);
+    camMove = Render::CameraMoveElmnt(glm::vec3(24.0f, 4.0f, 24.0f), glm::vec3(Render::DEFAULT_INIT_VERT_ANGL_RAD, glm::radians(-180.0f), 0.0f), glm::radians(90.0f), deadline + std::chrono::seconds(20));
+    renderer->addCameraMove(camMove);
+
+
     msRenderDelta = std::chrono::milliseconds(1000 / frameRate);
 
     lastRenderTime = std::chrono::steady_clock::now();
@@ -54,6 +65,11 @@ int Game::loop(const std::vector<GameEvent>& gameEvents)
             break;
         }
 
+    }
+    
+    if (!debugMode)
+    {
+        renderer->updateCameraPosition(timeOfRender);
     }
 
     // Find all renderable game entities and call their render method
@@ -104,17 +120,28 @@ void Game::debugCameraMove(const GameEvent &event)
 
     switch (event.eventType)
     {
+    // let look adjustment occur first so that move forward, backward, left and right can use the update cameraLookDir and right vectors
+    case GameEventType::LOOK_ADJUSTMENT:
+        renderer->offsetCameraRot(glm::vec3(glm::radians(-event.lookAdjustmentY * DEBUG_CAMERA_ROTATION_MULTIPLIER), glm::radians(-event.lookAdjustmentX * DEBUG_CAMERA_ROTATION_MULTIPLIER), 0.0f));
+        break;
+    case GameEventType::FOV_ADJUSTMENT:
+        renderer->offsetFov(glm::radians(-event.fovAdjustmnet * DEBUG_CAMERA_FOV_MULTIPLIER));
+        break;
     case GameEventType::MOVE_FORWARD:
-        renderer->offsetCamaraPos(glm::vec3(0.0f, 0.0f, DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND));
+        renderer->moveCameraZAxis(DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND);
+        //renderer->offsetCamaraPos(glm::vec3(0.0f, 0.0f, DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND));
         break;
     case GameEventType::MOVE_BACKWARD:
-        renderer->offsetCamaraPos(glm::vec3(0.0f, 0.0f, -DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND));
+        renderer->moveCameraZAxis(-DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND);
+        //renderer->offsetCamaraPos(glm::vec3(0.0f, 0.0f, -DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND));
         break;
     case GameEventType::MOVE_RIGHT:
-        renderer->offsetCamaraPos(glm::vec3(-DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f, 0.0f));
+        renderer->moveCameraXAxis(DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND);
+        //renderer->offsetCamaraPos(glm::vec3(-DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f, 0.0f));
         break;
     case GameEventType::MOVE_LEFT:
-        renderer->offsetCamaraPos(glm::vec3(DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f, 0.0f));
+        renderer->moveCameraXAxis(-DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND);
+        //renderer->offsetCamaraPos(glm::vec3(DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f, 0.0f));
         break;
     case GameEventType::MOVE_UP:
         renderer->offsetCamaraPos(glm::vec3(0.0f, DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f));
@@ -122,10 +149,6 @@ void Game::debugCameraMove(const GameEvent &event)
     case GameEventType::MOVE_DOWN:
         renderer->offsetCamaraPos(glm::vec3(0.0f, -DEBUG_CAMERA_MOVE_SPEED_UNITS_PER_SECOND, 0.0f));
         break;
-    case GameEventType::LOOK_ADJUSTMENT:
-        renderer->offsetCameraRot(glm::vec3(glm::radians(-event.lookAdjustmentY * DEBUG_CAMERA_ROTATION_MULTIPLIER), glm::radians(-event.lookAdjustmentX * DEBUG_CAMERA_ROTATION_MULTIPLIER), 0.0f));
-    case GameEventType::FOV_ADJUSTMENT:
-        renderer->offsetFov(glm::radians(-event.fovAdjustmnet * DEBUG_CAMERA_FOV_MULTIPLIER));
     default:
         break;
     }

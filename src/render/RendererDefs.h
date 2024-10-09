@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "model/Model.h"
 
@@ -75,6 +76,23 @@ struct DrawQueueElmnt
 };
 
 bool operator>(const DrawQueueElmnt& queueElmnt_1, const DrawQueueElmnt& queueElmnt_2);
+
+struct CameraMoveElmnt
+{
+    CameraMoveElmnt() {}
+    CameraMoveElmnt(glm::vec3 targetPos, glm::vec3 targetRot, float targetFov, std::chrono::time_point<std::chrono::steady_clock> deadline) : targetPosition(targetPos), 
+                                                                                                                                              targetRotation(targetRot), 
+                                                                                                                                              targetFov(targetFov),
+                                                                                                                                              deadline(deadline) {}
+    // The game initializes these variables
+    glm::vec3 targetPosition;
+    glm::vec3 targetRotation;
+    float     targetFov;
+    std::chrono::time_point<std::chrono::steady_clock> deadline;
+};
+
+bool operator<(const CameraMoveElmnt& camMvElmnt_1, const CameraMoveElmnt& camMvElmnt_2);
+bool operator>(const CameraMoveElmnt& camMvElmnt_1, const CameraMoveElmnt& camMvElmnt_2);
 
 }
 #endif // RENDERER_DEFS_H

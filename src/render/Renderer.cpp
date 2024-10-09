@@ -19,6 +19,7 @@ namespace Render
         cameraPos = DEFAULT_INIT_POS;
         cameraRot = glm::vec3(DEFAULT_INIT_VERT_ANGL_RAD, DEFAULT_INIT_HORIZNTL_ANGL_RAD, 0);
         cameraFOV = DEFAULT_CAMERA_FOV_RAD;
+        prevElmnt = CameraMoveElmnt(cameraPos, cameraRot, cameraFOV, std::chrono::steady_clock::now());
 
         updateCameraMats();
         
@@ -356,13 +357,13 @@ namespace Render
     {
         // Set default projection and view matrices
         projection = glm::perspective(cameraFOV, DEFAULT_ASPECT_RATIO, DEFAULT_RENDER_MIN_DIST, DEFAULT_RENDER_MAX_DIST);
-        glm::vec3 cameraLookDir(
+        cameraLookDir = glm::vec3(
             glm::cos(cameraRot.x) * glm::sin(cameraRot.y),
             glm::sin(cameraRot.x),
             glm::cos(cameraRot.x) * glm::cos(cameraRot.y)
         );
 
-        glm::vec3 right(
+        right = glm::vec3(
             glm::sin(cameraRot.y - glm::radians(90.0f)),
             0,
             glm::cos(cameraRot.y - glm::radians(90.0f))
@@ -418,6 +419,64 @@ namespace Render
     {
         cameraFOV += fov_rad;
         updateCameraMats();
+        return 0;
+    }
+
+    // Move the camera along the cameras look at direction (z axis)
+    int Renderer::moveCameraZAxis(float units)
+    {
+        cameraPos += glm::normalize(cameraLookDir) * units;
+        updateCameraMats();
+        return 0;
+    }
+    // Move camera along its right vector (x axis)
+    int Renderer::moveCameraXAxis(float units)
+    {
+        cameraPos += glm::normalize(right) * units;
+        updateCameraMats();
+        return 0;
+    }
+
+    int Renderer::addCameraMove(CameraMoveElmnt &cameraMove)
+    {
+        camMoveQueue.push(cameraMove);
+        return 0;
+    }
+
+    int Renderer::updateCameraPosition(std::chrono::time_point<std::chrono::steady_clock> renderTime)
+    {
+        if (!camMoveQueue.empty())
+        {
+            bool processCmplt = false;
+            CameraMoveElmnt chosenElmnt;
+            while (!camMoveQueue.empty() && processCmplt == false)
+            {
+                const CameraMoveElmnt *curElmnt = &(camMoveQueue.top());
+
+                chosenElmnt = *curElmnt;
+                if (curElmnt->deadline <= renderTime)
+                {
+                    prevElmnt = chosenElmnt;
+                    camMoveQueue.pop();
+                }
+                else
+                {
+
+                    processCmplt = true;
+                }
+            }
+
+            auto elapsedTime   = renderTime - prevElmnt.deadline;
+            auto totalTime     = chosenElmnt.deadline - prevElmnt.deadline;
+            float timeFraction = std::min(((float)elapsedTime.count() / (float)totalTime.count()), 1.0f);
+
+            cameraPos = prevElmnt.targetPosition + (chosenElmnt.targetPosition - prevElmnt.targetPosition) * timeFraction;
+            cameraRot = prevElmnt.targetRotation + (chosenElmnt.targetRotation - prevElmnt.targetRotation) * timeFraction;
+            cameraFOV = prevElmnt.targetFov + (chosenElmnt.targetFov - prevElmnt.targetFov) * timeFraction;
+        }
+        updateCameraMats(); // This really only needs to be outside of the if statement in the case we have exited debug mode
+        
+        
         return 0;
     }
 }

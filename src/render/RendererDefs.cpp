@@ -8,4 +8,14 @@ bool operator>(const DrawQueueElmnt& queueElmnt_1, const DrawQueueElmnt& queueEl
     return queueElmnt_1.distFromCamera > queueElmnt_2.distFromCamera;   
 }
 
+bool operator<(const CameraMoveElmnt& camMvElmnt_1, const CameraMoveElmnt& camMvElmnt_2)
+{
+    return camMvElmnt_1.deadline < camMvElmnt_2.deadline;
+}
+
+bool operator>(const CameraMoveElmnt& camMvElmnt_1, const CameraMoveElmnt& camMvElmnt_2)
+{
+    return !(camMvElmnt_1 < camMvElmnt_2);
+}
+
 }

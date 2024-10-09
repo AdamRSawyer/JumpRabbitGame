@@ -46,6 +46,15 @@ class Renderer // Singleton Class that handles rendering of all game objects
     int setCameraPos(const glm::vec3 &pos);
     int offsetCameraRot(const glm::vec3 &rotOffsetVecXYZ_rad);
     int setCameraRot(const glm::vec3 &rotationVecXYZ_rad);
+
+    int addCameraMove(CameraMoveElmnt &cameraMove);
+    int updateCameraPosition(std::chrono::time_point<std::chrono::steady_clock> renderTime);
+
+    // Move the camera along the cameras look at direction (z axis)
+    int moveCameraZAxis(float units);
+    // Move camera along its right vector (x axis)
+    int moveCameraXAxis(float units);
+
     
     int setFov(const float &fov_rad);
     int offsetFov(const float &fov_rad);
@@ -84,9 +93,15 @@ class Renderer // Singleton Class that handles rendering of all game objects
     glm::mat4 projection;
     glm::mat4 view;
 
+    glm::vec3 cameraLookDir;
+    glm::vec3 right;
+
     glm::vec3 cameraPos;
     glm::vec3 cameraRot;
     float     cameraFOV;
+
+    std::priority_queue<CameraMoveElmnt, std::vector<CameraMoveElmnt>, std::greater<CameraMoveElmnt>> camMoveQueue;
+    CameraMoveElmnt prevElmnt;
 
     SDL_Window *window = nullptr;
 
